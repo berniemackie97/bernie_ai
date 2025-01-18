@@ -16,11 +16,24 @@ export const CreateWorkspace = mutation({
 });
 
 export const GetWorkspace = query({
-  args:{
-    workspaceID: v.id("workspace")
+  args: {
+    workspaceID: v.id("workspace"),
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.get(args.workspaceID);
     return result;
   },
-})
+});
+
+export const UpdateMessages = mutation({
+  args: {
+    workspaceID: v.id("workspace"),
+    messages: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.patch(args.workspaceID, {
+      messages: args.messages,
+    });
+    return result;
+  },
+});
