@@ -11,12 +11,13 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 
 function Hero() {
-  const [userInput, setUserInput] = useState();
+  const [userInput, setUserInput] = useState("");
   const { messages, setMessages } = useContext(MessagesContext);
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
-  const [opeenDialog, setOpenDialog] = useState(false);
+  const { userDetail } = useContext(UserDetailContext);
+  const [openDialog, setOpenDialog] = useState(false);
   const CreateWorkSpace = useMutation(api.workspace.CreateWorkspace);
   const router = useRouter();
+
   const onGenerate = async (input) => {
     if (!userDetail?.name) {
       setOpenDialog(true);
@@ -27,13 +28,18 @@ function Hero() {
       content: input,
     };
     setMessages(message);
-    const workspaceID = await CreateWorkSpace({
-      user: userDetail._id,
-      messages: [message],
-    });
-    console.log(workspaceID);
-    router.push(`/workspace/${workspaceID}`);
+    try {
+      const workspaceID = await CreateWorkSpace({
+        user: userDetail._id,
+        messages: [message],
+      });
+      console.log(workspaceID);
+      router.push(`/workspace/${workspaceID}`);
+    } catch (error) {
+      console.error("Error creating workspace:", error);
+    }
   };
+
   return (
     <div className="flex flex-col items-center mt-36 xl:mt-52 gap-2">
       <h2 className="font-bold text-4xl">{Lookup.HERO_HEADING}</h2>
@@ -75,7 +81,7 @@ function Hero() {
         ))}
       </div>
       <SignInDialog
-        openDialog={opeenDialog}
+        openDialog={openDialog}
         dialogState={(value) => setOpenDialog(value)}
       />
     </div>

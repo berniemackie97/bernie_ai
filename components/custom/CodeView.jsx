@@ -1,4 +1,7 @@
 "use client";
+import { MessagesContext } from "@/context/MessagesContext";
+import Lookup from "@/data/Lookup";
+import Prompt from "@/data/Prompt";
 import {
   SandpackCodeEditor,
   SandpackFileExplorer,
@@ -6,10 +9,35 @@ import {
   SandpackPreview,
   SandpackProvider,
 } from "@codesandbox/sandpack-react";
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
 
 function CodeView() {
   const [activeTab, setActiveTab] = useState("code");
+  const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
+  const { messages, setMessages } = useContext(MessagesContext);
+
+  useEffect(() => {
+    if (messages?.length > 0) {
+      const role = messages[messages.length - 1].role;
+      if (role === "user") {
+        GenerateAiCode();
+      }
+    }
+  }, [messages]);
+
+  const GenerateAiCode = async () => {
+    const PROMPT =
+      messages[messages?.length - 1]?.content + Prompt.CODE_GEN_PROMPT;
+    const result = await axios.post("/api/ai-code-api", {
+      prompt: PROMPT,
+    });
+    console.log(result.data);
+    const aiResponse = result.data;
+
+    const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
+    setFiles(mergedFiles);
+  };
   return (
     <div>
       <div className="bg-[#181818] w-full p-2 border">
@@ -28,7 +56,19 @@ function CodeView() {
           </h2>
         </div>
       </div>
-      <SandpackProvider template="react-ts" theme={"dark"}>
+      <SandpackProvider
+        files={files}
+        template="react"
+        theme={"dark"}
+        customSetup={{
+          dependencies: {
+            ...Lookup.DEPENDANCY,
+          },
+        }}
+        options={{
+          externalResources: ["https://cdn.tailwindcss.com"],
+        }}
+      >
         <SandpackLayout>
           {activeTab == "code" ? (
             <>
@@ -37,7 +77,10 @@ function CodeView() {
             </>
           ) : (
             <>
-              <SandpackPreview style={{ height: "80vh" }} showNavigator={true} />
+              <SandpackPreview
+                style={{ height: "80vh" }}
+                showNavigator={true}
+              />
             </>
           )}
         </SandpackLayout>

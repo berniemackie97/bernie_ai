@@ -19,11 +19,24 @@ const {
     responseMimeType: "text/plain",
   };
   
+  const codeGenerationConfig = {
+    temperature: 1,
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 8192,
+    responseMimeType: "text/plain",
+  };
 
     export const chatSession = model.startChat({
       generationConfig,
       history: [
       ],
+    });
+
+    export const GenerateAiCode = model.startChat({
+        generationConfig: codeGenerationConfig,
+        history: [
+        ],
     });
   
     // const result = await chatSession.sendMessage("INSERT_INPUT_HERE");

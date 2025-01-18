@@ -25,9 +25,8 @@ export default {
   </body>
 </html>`
     },
-    '/App.css': {
-      code: `
-            @tailwind base;
+    "/App.css": {
+      code: `@tailwind base;
 @tailwind components;
 @tailwind utilities;`
     },
@@ -56,6 +55,11 @@ export default config;
 `
     }
   },
+
+  EXTERNAL_RESOURCES: {
+    tailwind: "https://cdn.tailwindcss.com"
+  },
+
   DEPENDANCY: {
 
     "postcss": "^8",

@@ -1,39 +1,48 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/custom/Header";
 import { MessagesContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 function Provider({ children }) {
   const [messages, setMessages] = useState();
   const [userDetail, setUserDetail] = useState();
-  const convex=useConvex();
+  const convex = useConvex();
 
-  useEffect(()=>{
+  useEffect(() => {
     IsAuthenticated();
-  },[])
+  }, []);
 
-  const IsAuthenticated=async() =>{
-    if(typeof window !== "undefined") {
+  const IsAuthenticated = async () => {
+    if (typeof window !== "undefined") {
       const user = JSON.parse(localStorage.getItem("userDetail"));
-      // Fetch from db
-      const result = await convex.query(api.users.GetUser,{
-        email: user?.email
-      })
-      setUserDetail(result);
-      console.log(result);
+      if (user && user.email) {
+        try {
+          // Fetch from db
+          const result = await convex.query(api.users.GetUser, {
+            email: user.email,
+          });
+          setUserDetail(result);
+          console.log(result);
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      } else {
+        console.warn("User details not found in localStorage");
+      }
     }
-  }
+  };
+
   return (
     <div>
       <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
         <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
-          <MessagesContext.Provider value={{ messages, setMessages }}>
-            <NextThemesProvider
+        <MessagesContext.Provider value={{ messages, setMessages }}>
+        <NextThemesProvider
               attribute="class"
               defaultTheme="dark"
               enableSystem
