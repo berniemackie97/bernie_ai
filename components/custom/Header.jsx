@@ -6,8 +6,6 @@ import { UserDetailContext } from "@/context/UserDetailContext";
 
 function Header() {
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
-  console.log("thisone chief");
-  console.log(userDetail);
   return (
     <div className="p-4 flex justify-between items-center">
       <Image src={"/logo.png"} alt="logo" width={40} height={40} />

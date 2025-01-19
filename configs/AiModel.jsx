@@ -1,44 +1,58 @@
 const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } = require("@google/generative-ai");
-  
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
-  });
-  
-  const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
-  };
-  
-  const codeGenerationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
-  };
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} = require("@google/generative-ai");
 
-    export const chatSession = model.startChat({
-      generationConfig,
-      history: [
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash-exp",
+});
+
+const generationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192,
+  responseMimeType: "text/plain",
+};
+
+const codeGenerationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192,
+  responseMimeType: "text/plain",
+};
+
+export const chatSession = model.startChat({
+  generationConfig,
+  history: [],
+});
+
+export const GenerateAiCode = model.startChat({
+  codeGenerationConfig,
+  history: [
+    {
+      role: "user",
+      parts: [
+        {
+          text: 'Generate a programming code structure for a React project using Vite. Create multiple components, organizing them in separate folders with filenames using the .js extension, if needed. The output should use Tailwind CSS for styling, without any third-party dependencies or libraries, except for icons from the lucide-react library, which should only be used when necessary. Available icons include: Heart, Shield, Clock, Users, Play, Home, Search, Menu, User, Settings, Mail, Bell, Calendar, Star, Upload, Download, Trash, Edit, Plus, Minus, Check, X, and ArrowRight. For example, you can import an icon as import { Heart } from "lucide-react" and use it in JSX as <Heart className="" />.\n\nReturn the response in JSON format with the following schema:\n{\n  "projectTitle": "",\n  "explanation": "",\n  "files": {\n    "/App.js": {\n      "code": ""\n    },\n    ...\n  },\n  "generatedFiles": []\n}\n\nIMPORTANT! REMOVE \\`\\`\\`json from the beginning and end of the response before SENDING RESPONSE.\n\nEnsure the files field contains all created files, and the generatedFiles field lists all the filenames. Each file\'s code should be included in the code field, following this example:\nfiles:{\n  "/App.js": {\n    "code": "import React from \'react\';\\nimport \'./styles.css\';\\nexport default function App() {\\n  return (\\n    <div className=\'p-4 bg-gray-100 text-center\'>\\n      <h1 className=\'text-2xl font-bold text-blue-500\'>Hello, Tailwind CSS with Sandpack!</h1>\\n      <p className=\'mt-2 text-gray-700\'>This is a live code editor.</p>\\n    </div>\\n  );\\n}"\n  }\n}\n  Additionally, include an explanation of the project\'s structure, purpose, and functionality in the explanation field. Make the response concise and clear in one paragraph.\n  - When asked then only use this package to import, here are some packages available to import and use (date-fns,react-chartjs-2,"firebase","@google/generative-ai" ) only when it required\n  \n  - For placeholder images, please use a https://archive.org/download/placeholder-image/placeholder-image.jpg\n  -Add Emoji icons whenever needed to give good user experinence\n  - all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\n- By default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\n- Use icons from lucide-react for logos.\n\n- Use stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.\n   ',
+        },
       ],
-    });
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: '{\n  "projectTitle": "Tailwind CSS React App with Vite",\n  "explanation": "This React application, built with Vite, showcases a well-structured project using functional components and Tailwind CSS for styling. The components are organized into separate folders, enhancing maintainability. The application utilizes icons from the lucide-react library when needed, and avoids using other third-party UI libraries. It demonstrates a basic layout with reusable components and a simple navigation setup.",\n  "files": {\n    "/src/App.js": {\n      "code": "import React from \'react\';\\nimport Header from \'./components/Header/Header.js\';\\nimport Home from \'./pages/Home/Home.js\';\\nimport Footer from \'./components/Footer/Footer.js\';\\n\\nfunction App() {\\n  return (\\n    <div className=\\"flex flex-col min-h-screen\\">\\n      <Header />\\n      <main className=\\"flex-1\\">\\n        <Home />\\n      </main>\\n      <Footer />\\n    </div>\\n  );\\n}\\n\\nexport default App;"\n    },\n     "/src/components/Header/Header.js": {\n      "code": "import React from \'react\';\\nimport { Menu, Home, Search, User } from \'lucide-react\';\\n\\nfunction Header() {\\n  return (\\n    <header className=\\"bg-blue-500 text-white py-4 px-6 flex justify-between items-center\\">\\n      <div className=\\"flex items-center\\">\\n        <Menu className=\\"h-6 w-6 mr-4 cursor-pointer md:hidden\\" />\\n        <h1 className=\\"text-2xl font-bold flex items-center\\"><Home className=\\"h-6 w-6 mr-2\\" /> My App</h1>\\n      </div>\\n      <nav className=\\"hidden md:flex space-x-6\\">\\n        <a href=\\"/\\" className=\\"hover:text-blue-200\\">Home</a>\\n        <a href=\\"#\\" className=\\"hover:text-blue-200\\">About</a>\\n        <a href=\\"#\\" className=\\"hover:text-blue-200\\">Services</a>\\n        <a href=\\"#\\" className=\\"hover:text-blue-200\\">Contact</a>\\n      </nav>\\n      <div className=\\"flex items-center space-x-4\\">\\n        <Search className=\\"h-5 w-5 cursor-pointer\\"/>\\n        <User className=\\"h-5 w-5 cursor-pointer\\"/>\\n      </div>\\n    </header>\\n  );\\n}\\n\\nexport default Header;"\n    },\n      "/src/components/Footer/Footer.js": {\n      "code": "import React from \'react\';\\n\\nfunction Footer() {\\n  return (\\n    <footer className=\\"bg-gray-800 text-white py-4 px-6 text-center\\">\\n      <p>&copy; {new Date().getFullYear()} My App. All rights reserved.</p>\\n    </footer>\\n  );\\n}\\n\\nexport default Footer;"\n    },\n    "/src/pages/Home/Home.js": {\n      "code": "import React from \'react\';\\nimport HeroSection from \'./sections/HeroSection.js\';\\nimport FeaturesSection from \'./sections/FeaturesSection.js\';\\nimport TestimonialsSection from \'./sections/TestimonialsSection.js\';\\nimport GallerySection from \'./sections/GallerySection.js\'\\n\\nfunction Home() {\\n  return (\\n    <div className=\\"\\">\\n        <HeroSection />\\n        <FeaturesSection />\\n        <TestimonialsSection />\\n        <GallerySection />\\n    </div>\\n  );\\n}\\n\\nexport default Home;"\n    },\n    "/src/pages/Home/sections/HeroSection.js":{\n       "code": "import React from \'react\';\\n\\nfunction HeroSection() {\\n  return (\\n    <section className=\\"bg-gray-100 py-16 text-center\\">\\n      <div className=\\"container mx-auto px-4\\">\\n        <h2 className=\\"text-4xl font-bold mb-4\\">Welcome to My Awesome App 🚀</h2>\\n        <p className=\\"text-lg text-gray-700 mb-8\\">Discover amazing features and get started today.</p>\\n        <button className=\\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded\\">Get Started</button>\\n      </div>\\n    </section>\\n  );\\n}\\n\\nexport default HeroSection;"\n    },\n    "/src/pages/Home/sections/FeaturesSection.js":{\n        "code": "import React from \'react\';\\nimport { Heart, Shield, Clock, Users } from \'lucide-react\';\\n\\nconst features = [\\n    {\\n      icon: Heart,\\n      title: \'Feature 1\',\\n      description: \'This is a short description of feature 1.\'\\n    },\\n    {\\n      icon: Shield,\\n      title: \'Feature 2\',\\n      description: \'This is a short description of feature 2.\'\\n    },\\n    {\\n      icon: Clock,\\n      title: \'Feature 3\',\\n      description: \'This is a short description of feature 3.\'\\n    },\\n      {\\n      icon: Users,\\n      title: \'Feature 4\',\\n      description: \'This is a short description of feature 4.\'\\n    }\\n  ];\\n\\nfunction FeaturesSection() {\\n  return (\\n    <section className=\\"py-12 bg-white\\">\\n      <div className=\\"container mx-auto px-4\\">\\n        <h2 className=\\"text-3xl font-bold mb-8 text-center\\">Key Features ✨</h2>\\n        <div className=\\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6\\">\\n          {features.map((feature, index) => (\\n            <div key={index} className=\\"bg-gray-100 p-6 rounded-lg shadow-md flex flex-col items-center\\">\\n              <feature.icon className=\\"h-10 w-10 text-blue-500 mb-4\\" />\\n              <h3 className=\\"text-xl font-semibold mb-2\\">{feature.title}</h3>\\n              <p className=\\"text-gray-600 text-center\\">{feature.description}</p>\\n            </div>\\n          ))}\\n        </div>\\n      </div>\\n    </section>\\n  );\\n}\\n\\nexport default FeaturesSection;"\n    },\n      "/src/pages/Home/sections/TestimonialsSection.js":{\n        "code": "import React from \'react\';\\n\\nconst testimonials = [\\n    {\\n      author: \'John Doe\',\\n      text: \'This is the best app ever! I highly recommend it.\',\\n      image: \'https://archive.org/download/placeholder-image/placeholder-image.jpg\'\\n    },\\n    {\\n      author: \'Jane Smith\',\\n      text: \'I love this app, it\\\'s so easy to use and saves me a lot of time!\',\\n      image: \'https://archive.org/download/placeholder-image/placeholder-image.jpg\'\\n    }\\n  ];\\n\\nfunction TestimonialsSection() {\\n  return (\\n    <section className=\\"py-12 bg-gray-50\\">\\n      <div className=\\"container mx-auto px-4\\">\\n        <h2 className=\\"text-3xl font-bold mb-8 text-center\\">What Our Users Say 💬</h2>\\n        <div className=\\"grid grid-cols-1 md:grid-cols-2 gap-8\\">\\n          {testimonials.map((testimonial, index) => (\\n            <div key={index} className=\\"bg-white rounded-lg shadow-md p-6 flex items-start\\">\\n              <img src={testimonial.image} alt={testimonial.author} className=\\"w-16 h-16 rounded-full mr-4\\"/>\\n              <div>\\n                <p className=\\"text-gray-700 italic mb-2\\">\\"{testimonial.text}\\"</p>\\n                <p className=\\"font-semibold\\">- {testimonial.author}</p>\\n              </div>\\n            </div>\\n          ))}\\n        </div>\\n      </div>\\n    </section>\\n  );\\n}\\n\\nexport default TestimonialsSection;"\n    },\n     "/src/pages/Home/sections/GallerySection.js":{\n      "code": "import React from \'react\';\\n\\nconst images = [\\n    \'https://images.unsplash.com/photo-1519996529805-c9874097a863?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFja2dyb3VuZCUyMGltYWdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1506154571767-a2ab7289e073?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YmFja2dyb3VuZCUyMGltYWdlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1470508085975-2d5c81943605?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1534620808146-d33bb3962487?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1455165836746-43d155966d12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1583554601243-3724819b66b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1509650799-3c075933476b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n    \'https://images.unsplash.com/photo-1446824031415-b24801945311?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGJhY2tncm91bmQlMjBpbWFnZXxlbnwwfHwwfHx8&auto=format&fit=crop&w=500&q=60\',\\n  ];\\n\\nfunction GallerySection() {\\n  return (\\n    <section className=\\"py-12 bg-white\\">\\n        <div className=\\"container mx-auto px-4\\">\\n          <h2 className=\\"text-3xl font-bold mb-8 text-center\\">Photo Gallery 🖼️</h2>\\n          <div className=\\"grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4\\">\\n          {images.map((image, index) => (\\n              <div key={index} className=\\"overflow-hidden rounded-md shadow-md\\">\\n                <img src={image} alt={`Gallery Item ${index + 1}`} className=\\"w-full h-48 object-cover hover:scale-105 transition-transform duration-300\\" />\\n              </div>\\n          ))}\\n        </div>\\n        </div>\\n    </section>\\n  );\\n}\\n\\nexport default GallerySection;"\n    }\n  },\n  "generatedFiles": [\n    "/src/App.js",\n    "/src/components/Header/Header.js",\n    "/src/components/Footer/Footer.js",\n     "/src/pages/Home/Home.js",\n      "/src/pages/Home/sections/HeroSection.js",\n      "/src/pages/Home/sections/FeaturesSection.js",\n      "/src/pages/Home/sections/TestimonialsSection.js",\n       "/src/pages/Home/sections/GallerySection.js"\n  ]\n}',
+        },
+      ],
+    },
+  ],
+});
 
-    export const GenerateAiCode = model.startChat({
-        generationConfig: codeGenerationConfig,
-        history: [
-        ],
-    });
-  
-    // const result = await chatSession.sendMessage("INSERT_INPUT_HERE");
-    // console.log(result.response.text());
-  
+// const result = await chatSession.sendMessage("INSERT_INPUT_HERE");
+// console.log(result.response.text());

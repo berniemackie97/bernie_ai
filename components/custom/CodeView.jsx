@@ -27,16 +27,19 @@ function CodeView() {
   }, [messages]);
 
   const GenerateAiCode = async () => {
-    const PROMPT =
-      messages[messages?.length - 1]?.content + Prompt.CODE_GEN_PROMPT;
-    const result = await axios.post("/api/ai-code-api", {
-      prompt: PROMPT,
-    });
-    console.log(result.data);
-    const aiResponse = result.data;
-
-    const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
-    setFiles(mergedFiles);
+    const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
+      try {
+        const result = await axios.post("/api/ai-code-api", {
+          prompt: PROMPT
+        });
+        console.log(result.data);
+        const aiResponse = result.data;
+  
+        const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
+        setFiles(mergedFiles);
+      } catch (error) {
+        console.error("Error generating AI code:", error);
+      }
   };
   return (
     <div>

@@ -36,7 +36,6 @@ function ChatView() {
       workspaceID: id,
     });
     setMessages(result?.messages);
-    console.log(result);
   };
 
   useEffect(() => {
@@ -55,7 +54,6 @@ function ChatView() {
     const result = await axios.post("/api/ai-api", {
       prompt: PROMPT,
     });
-    // console.log(result.data.result);
     const aiResponse = { role: "ai", content: result.data.result };
     setMessages((prev) => [...prev, aiResponse]);
     await UpdateMessages({
