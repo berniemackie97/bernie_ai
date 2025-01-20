@@ -37,3 +37,16 @@ export const UpdateMessages = mutation({
     return result;
   },
 });
+
+export const UpdateFiles = mutation({
+  args: {
+    workspaceID: v.id("workspace"),
+    files: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.patch(args.workspaceID, {
+      fileData: args.files,
+    });
+    return result;
+  },
+});

@@ -5,7 +5,7 @@ import Colors from "@/data/Colors";
 import { useConvex, useMutation } from "convex/react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { MessagesContext } from "@/context/MessagesContext"; // Added import for MessagesContext
 import Lookup from "@/data/Lookup";
 import { ArrowRight, Link, Loader2Icon } from "lucide-react";
@@ -21,6 +21,13 @@ function ChatView() {
   const [userInput, setUserInput] = useState();
   const [loading, setLoading] = useState(false);
   const UpdateMessages = useMutation(api.workspace.UpdateMessages);
+  const chatAreaRef = useRef(null);
+
+  useEffect(() => {
+    if (chatAreaRef.current){
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+    }
+  }, [messages])
 
   useEffect(() => {
     if (id) {
@@ -76,7 +83,7 @@ function ChatView() {
 
   return (
     <div className="relative h-[85vh] flex flex-col">
-      <div className="flex-1 overflow-y-scroll scrollbar-hide">
+      <div ref={chatAreaRef} className="flex-1 overflow-y-scroll scrollbar-hide">
         {Array.isArray(messages) &&
           messages?.map((message, index) => (
             <div

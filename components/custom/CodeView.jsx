@@ -12,12 +12,32 @@ import {
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { Loader2Icon } from "lucide-react";
+import { useConvex, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useParams } from "next/navigation";
 
 function CodeView() {
+  const { id } = useParams();
   const [activeTab, setActiveTab] = useState("code");
   const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
   const [loading, setLoading] = useState(false);
   const { messages, setMessages } = useContext(MessagesContext);
+  const UpdateFiles = useMutation(api.workspace.UpdateFiles);
+  const convex = useConvex();
+
+  useEffect(() => {
+    id && GetFiles();
+  }, [id]);
+
+  const GetFiles = async () => {
+    setLoading(true);
+    const result = await convex.query(api.workspace.GetWorkspace, {
+      workspaceID: id,
+    });
+    const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
+    setFiles(mergedFiles);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (messages?.length > 0) {
@@ -41,6 +61,10 @@ function CodeView() {
 
       const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
       setFiles(mergedFiles);
+      UpdateFiles({
+        workspaceID: id,
+        files: aiResponse?.files,
+      });
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -48,7 +72,7 @@ function CodeView() {
     }
   };
   return (
-    <div>
+    <div className="relative">
       <div className="bg-[#181818] w-full p-2 border">
         <div className="flex items-center flex-wrap shrink-0 bg-black p-1 justify-center rounded-full w-[140px] gap-3">
           <h2
@@ -78,35 +102,28 @@ function CodeView() {
           externalResources: ["https://cdn.tailwindcss.com"],
         }}
       >
-        <SandpackLayout className="flex">
+        <SandpackLayout>
           {activeTab == "code" ? (
             <>
-              <SandpackFileExplorer style={{ height: "80vh", flex: "1" }} />
-              {loading ? (
-                <div
-                  className="flex flex-col items-center justify-center h-[80vh] text-white"
-                  style={{ flex: "3" }}
-                >
-                  <Loader2Icon className="animate-spin w-12 h-12" />
-                  <h2 className="text-2xl mt-4">Generating files...</h2>
-                </div>
-              ) : (
-                <SandpackCodeEditor
-                  language="jsx"
-                  style={{ height: "80vh", flex: "3" }}
-                />
-              )}
+              <SandpackFileExplorer style={{ height: "80vh" }} />
+              <SandpackCodeEditor style={{ height: "80vh" }} />
             </>
           ) : (
             <>
               <SandpackPreview
-                style={{ height: "80vh", flex: "3" }}
+                style={{ height: "80vh" }}
                 showNavigator={true}
               />
             </>
           )}
         </SandpackLayout>
       </SandpackProvider>
+      {loading && (
+        <div className="p-10 bg-gray-900 opacity-70 absolute top-0 rounded-lg w-full h-full flex items-center justify-center">
+          <Loader2Icon className="animate-spin h-10 w-10 text-white" />
+          <h2 className="text-white">Generating files...</h2>
+        </div>
+      )}
     </div>
   );
 }
