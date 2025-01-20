@@ -11,10 +11,12 @@ import {
 } from "@codesandbox/sandpack-react";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
+import { Loader2Icon } from "lucide-react";
 
 function CodeView() {
   const [activeTab, setActiveTab] = useState("code");
   const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
+  const [loading, setLoading] = useState(false);
   const { messages, setMessages } = useContext(MessagesContext);
 
   useEffect(() => {
@@ -27,19 +29,23 @@ function CodeView() {
   }, [messages]);
 
   const GenerateAiCode = async () => {
+    setLoading(true);
+    setActiveTab("code");
     const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
-      try {
-        const result = await axios.post("/api/ai-code-api", {
-          prompt: PROMPT
-        });
-        console.log(result.data);
-        const aiResponse = result.data;
-  
-        const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
-        setFiles(mergedFiles);
-      } catch (error) {
-        console.error("Error generating AI code:", error);
-      }
+    try {
+      const result = await axios.post("/api/ai-code-api", {
+        prompt: PROMPT,
+      });
+      console.log(result.data);
+      const aiResponse = result.data;
+
+      const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
+      setFiles(mergedFiles);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error generating AI code:", error);
+    }
   };
   return (
     <div>
@@ -72,16 +78,29 @@ function CodeView() {
           externalResources: ["https://cdn.tailwindcss.com"],
         }}
       >
-        <SandpackLayout>
+        <SandpackLayout className="flex">
           {activeTab == "code" ? (
             <>
-              <SandpackFileExplorer style={{ height: "80vh" }} />
-              <SandpackCodeEditor language="jsx" style={{ height: "80vh" }} />
+              <SandpackFileExplorer style={{ height: "80vh", flex: "1" }} />
+              {loading ? (
+                <div
+                  className="flex flex-col items-center justify-center h-[80vh] text-white"
+                  style={{ flex: "3" }}
+                >
+                  <Loader2Icon className="animate-spin w-12 h-12" />
+                  <h2 className="text-2xl mt-4">Generating files...</h2>
+                </div>
+              ) : (
+                <SandpackCodeEditor
+                  language="jsx"
+                  style={{ height: "80vh", flex: "3" }}
+                />
+              )}
             </>
           ) : (
             <>
               <SandpackPreview
-                style={{ height: "80vh" }}
+                style={{ height: "80vh", flex: "3" }}
                 showNavigator={true}
               />
             </>

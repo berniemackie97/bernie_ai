@@ -17,15 +17,15 @@ export async function POST(req) {
 
     return NextResponse.json(JSON.parse(responseText));
   } catch (e) {
-    console.error("Error generating AI code:", error);
-    if (error.response) {
-      console.error("Response data:", error.response.data);
-      console.error("Response status:", error.response.status);
-      console.error("Response headers:", error.response.headers);
+    console.error("Error generating AI code:", e);
+    if (e.response) {
+      console.error("Response data:", e.response.data);
+      console.error("Response status:", e.response.status);
+      console.error("Response headers:", e.response.headers);
     } else if (error.request) {
-      console.error("Request data:", error.request);
+      console.error("Request data:", e.request);
     } else {
-      console.error("Error message:", error.message);
+      console.error("Error message:", e.message);
     }
     return NextResponse.json({ error: e.message, stack: e.stack });
   }
