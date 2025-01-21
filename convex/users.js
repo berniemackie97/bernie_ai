@@ -9,11 +9,12 @@ export const CreateUser = mutation({
     uid: v.string(),
   },
   handler: async (ctx, args) => {
+    // Query the database to check if a user with the given email already exists
     const user = await ctx.db
       .query("users")
       .filter((q) => q.eq(q.field("email"), args.email))
       .collect();
-    console.log(user);
+    // If no user is found, insert the new user into the database
     if (user?.length == 0) {
       const result = await ctx.db.insert("users", {
         name: args.name,
@@ -26,15 +27,17 @@ export const CreateUser = mutation({
   },
 });
 
+// Query to get a user by email
 export const GetUser = query({
-    args:{
-        email:v.string()
-    },
-    handler: async (ctx, args) => {
-        const user = await ctx.db
-            .query("users")
-            .filter((q) => q.eq(q.field("email"), args.email))
-            .collect();
-        return user[0];
-    }
-})
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Query the database to find a user with the given email
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), args.email))
+      .collect();
+    return user[0];
+  },
+});

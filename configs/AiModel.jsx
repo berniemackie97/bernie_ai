@@ -11,6 +11,7 @@ const model = genAI.getGenerativeModel({
   model: "gemini-2.0-flash-exp",
 });
 
+// Close the dialog
 const generationConfig = {
   temperature: 1,
   topP: 0.95,
@@ -19,6 +20,7 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
+// Close the dialog
 const codeGenerationConfig = {
   temperature: 1,
   topP: 0.95,

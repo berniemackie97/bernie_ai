@@ -12,7 +12,7 @@ export async function POST(req) {
       responseText = responseText.substring(7); // Remove the first 7 characters
     }
     if (!responseText.endsWith("}")) {
-      responseText = responseText.substring(0, responseText.length - 4); // Remove the last 3 characters
+      responseText = responseText.substring(0, responseText.length - 4); // Remove the last 4 characters
     }
 
     return NextResponse.json(JSON.parse(responseText));
@@ -22,7 +22,7 @@ export async function POST(req) {
       console.error("Response data:", e.response.data);
       console.error("Response status:", e.response.status);
       console.error("Response headers:", e.response.headers);
-    } else if (error.request) {
+    } else if (e.request) {
       console.error("Request data:", e.request);
     } else {
       console.error("Error message:", e.message);

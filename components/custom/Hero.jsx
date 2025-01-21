@@ -3,22 +3,30 @@ import { MessagesContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import Colors from "@/data/Colors";
 import Lookup from "@/data/Lookup";
-import { ArrowRight, Link } from "lucide-react";
+import { ArrowRight, Link, Loader2Icon } from "lucide-react";
 import React, { useContext, useState } from "react";
 import SignInDialog from "./SignInDialog";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
+import { LoadingContext } from "@/context/LoadingContext";
 
 function Hero() {
   const [userInput, setUserInput] = useState("");
-  const { messages, setMessages } = useContext(MessagesContext);
+  const { setMessages } = useContext(MessagesContext);
   const { userDetail } = useContext(UserDetailContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const CreateWorkSpace = useMutation(api.workspace.CreateWorkspace);
   const router = useRouter();
 
+  /**
+   * Handles the generation of a new workspace based on user input
+   * @param {string} input - The user input
+   */
   const onGenerate = async (input) => {
+    setLoading(true);
+    // If user is not signed in, open the sign-in dialog
     if (!userDetail?.name) {
       setOpenDialog(true);
       return;
@@ -27,16 +35,19 @@ function Hero() {
       role: "user",
       content: input,
     };
+    // Set the message in the MessagesContext
     setMessages(message);
     try {
+      // Create a new workspace with the user ID and message
       const workspaceID = await CreateWorkSpace({
         user: userDetail._id,
         messages: [message],
       });
-      console.log(workspaceID);
       router.push(`/workspace/${workspaceID}`);
     } catch (error) {
       console.error("Error creating workspace:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,13 +62,20 @@ function Hero() {
           backgroundColor: Colors.BACKGROUND,
         }}
       >
-        <div className="flex gap-2">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-transparent bg-opacity-80 z-10">
+            <Loader2Icon className="animate-spin mt-10 w-12 h-12" />
+          </div>
+        )}
+        <div className="flex gap-2 relative z-0">
+          {/* Textarea for user input */}
           <textarea
             placeholder={Lookup.INPUT_PLACEHOLDER}
             className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
             onChange={(event) => setUserInput(event.target.value)}
           />
-          {userInput && (
+          {/* Show send button if userInput is not empty */}
+          {userInput && !loading && (
             <ArrowRight
               onClick={() => onGenerate(userInput)}
               className="bg-blue-500 p-2 h-10 w-10 rounded-md cursor-pointer"
@@ -80,10 +98,8 @@ function Hero() {
           </h2>
         ))}
       </div>
-      <SignInDialog
-        openDialog={openDialog}
-        dialogState={(value) => setOpenDialog(value)}
-      />
+      {/* Sign-in dialog */}
+      {openDialog && <SignInDialog onClose={() => setOpenDialog(false)} />}
     </div>
   );
 }

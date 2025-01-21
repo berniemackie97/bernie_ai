@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Header from "@/components/custom/Header";
 import { MessagesContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
+import { LoadingContextProvider } from "@/context/LoadingContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -22,7 +23,6 @@ function Provider({ children }) {
       const user = JSON.parse(localStorage.getItem("userDetail"));
       if (user && user.email) {
         try {
-          // Fetch from db
           const result = await convex.query(api.users.GetUser, {
             email: user.email,
           });
@@ -41,16 +41,18 @@ function Provider({ children }) {
     <div>
       <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
         <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
-        <MessagesContext.Provider value={{ messages, setMessages }}>
-        <NextThemesProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <Header />
-              {children}
-            </NextThemesProvider>
+          <MessagesContext.Provider value={{ messages, setMessages }}>
+            <LoadingContextProvider>
+              <NextThemesProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <Header />
+                {children}
+              </NextThemesProvider>
+            </LoadingContextProvider>
           </MessagesContext.Provider>
         </UserDetailContext.Provider>
       </GoogleOAuthProvider>

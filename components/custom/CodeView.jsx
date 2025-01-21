@@ -15,13 +15,15 @@ import { Loader2Icon } from "lucide-react";
 import { useConvex, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
+import { LoadingContext } from "@/context/LoadingContext";
 
 function CodeView() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("code");
   const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
   const [loading, setLoading] = useState(false);
-  const { messages, setMessages } = useContext(MessagesContext);
+  const { messages } = useContext(MessagesContext);
+  const { setCodeViewLoading } = useContext(LoadingContext.Provider);
   const UpdateFiles = useMutation(api.workspace.UpdateFiles);
   const convex = useConvex();
 
@@ -31,12 +33,14 @@ function CodeView() {
 
   const GetFiles = async () => {
     setLoading(true);
+    setCodeViewLoading(true);
     const result = await convex.query(api.workspace.GetWorkspace, {
       workspaceID: id,
     });
     const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
     setFiles(mergedFiles);
     setLoading(false);
+    setCodeViewLoading(false);
   };
 
   useEffect(() => {
@@ -50,6 +54,7 @@ function CodeView() {
 
   const GenerateAiCode = async () => {
     setLoading(true);
+    setCodeViewLoading(true);
     setActiveTab("code");
     const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
     try {
@@ -65,10 +70,11 @@ function CodeView() {
         workspaceID: id,
         files: aiResponse?.files,
       });
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       console.error("Error generating AI code:", error);
+    } finally {
+      setLoading(false);
+      setCodeViewLoading(false);
     }
   };
   return (

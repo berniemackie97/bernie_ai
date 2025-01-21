@@ -17,18 +17,18 @@ import uuid4 from "uuid4";
 import { api } from "@/convex/_generated/api";
 
 function SignInDialog({ openDialog, dialogState }) {
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { setUserDetail } = useContext(UserDetailContext);
   const CreateUser = useMutation(api.users.CreateUser);
+    // Google login configuration
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log(tokenResponse);
       const userInfo = await axios.get(
         "https://www.googleapis.com/oauth2/v3/userinfo",
         { headers: { Authorization: `Bearer ${tokenResponse?.access_token}` } }
       );
 
-      console.log(userInfo);
       const user = userInfo.data;
+            // Create a new user in the database
       await CreateUser({
         name: user.name,
         email: user.email,
@@ -36,13 +36,15 @@ function SignInDialog({ openDialog, dialogState }) {
         uid: uuid4()
       });
 
+      // Save user details in local storage
 
       if(typeof window !== "undefined") {
         localStorage.setItem("userDetail", JSON.stringify(user));
       }
 
+      // Update user details in context
       setUserDetail(userInfo?.data);
-      // Save this inside db
+      // Close the dialog
       dialogState(false);
     },
     onError: (errorResponse) => console.log(errorResponse),

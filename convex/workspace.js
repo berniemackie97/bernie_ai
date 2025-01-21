@@ -7,6 +7,7 @@ export const CreateWorkspace = mutation({
     user: v.id("users"),
   },
   handler: async (ctx, args) => {
+    // Insert a new workspace into the "workspace" collection
     const workspaceID = await ctx.db.insert("workspace", {
       messages: args.messages,
       user: args.user,
@@ -15,11 +16,13 @@ export const CreateWorkspace = mutation({
   },
 });
 
+// Query to get a workspace by its ID
 export const GetWorkspace = query({
   args: {
     workspaceID: v.id("workspace"),
   },
   handler: async (ctx, args) => {
+    // Get the workspace document from the "workspace" collection
     const result = await ctx.db.get(args.workspaceID);
     return result;
   },
@@ -31,6 +34,7 @@ export const UpdateMessages = mutation({
     messages: v.any(),
   },
   handler: async (ctx, args) => {
+    // Update the messages field in the workspace document
     const result = await ctx.db.patch(args.workspaceID, {
       messages: args.messages,
     });
@@ -44,6 +48,7 @@ export const UpdateFiles = mutation({
     files: v.any(),
   },
   handler: async (ctx, args) => {
+    // Update the fileData field in the workspace document
     const result = await ctx.db.patch(args.workspaceID, {
       fileData: args.files,
     });
